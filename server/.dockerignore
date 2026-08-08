@@ -1,0 +1,3 @@
+libs/contracts/src/prisma/generate
+node_modules
+.env

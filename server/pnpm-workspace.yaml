@@ -1,0 +1,8 @@
+allowBuilds:
+  '@prisma/engines': true
+  '@swc/core': true
+  msgpackr-extract: true
+  prisma: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - bullmq@6.0.8

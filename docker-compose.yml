@@ -1,0 +1,179 @@
+name: job-manager-project
+
+services:
+  # client:
+  #   build: client
+  #   environment:
+  #     API: localhost:3000
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - job-manager-project
+  api-gateway:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: api-gateway
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      job-server:
+        condition: service_healthy
+      notification-server:
+        condition: service_healthy
+    environment:
+      PORT: ${API_PORT}
+      JOB_HOST: job-server
+      JOB_PORT: ${JOB_PORT}
+      NOTIFICATION_HOST: notification-server
+      NOTIFICATION_PORT: ${NOTIFICATION_PORT}
+      DATABASE_HOST: db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "--timeout=3", "http://127.0.0.1:${API_PORT}/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "${API_PORT}:${API_PORT}"
+    networks:
+      - job-manager-project
+
+  job-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: job
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-bullmq:
+        condition: service_healthy
+    environment:
+      PORT: ${JOB_PORT}
+      DATABASE_HOST: db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "127.0.0.1", "${JOB_PORT}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - job-manager-project
+
+  job-worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: job-worker
+    restart: unless-stopped
+    deploy:
+      replicas: 3
+    depends_on:
+      redis-bullmq:
+        condition: service_healthy
+    environment:
+      JOB_HOST: job-server
+      JOB_PORT: ${JOB_PORT}
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+    networks:
+      - job-manager-project
+
+  notification-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: notification
+    restart: unless-stopped
+    depends_on:
+      redis-bullmq:
+        condition: service_healthy
+    environment:
+      PORT: ${NOTIFICATION_PORT}
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "127.0.0.1", "${NOTIFICATION_PORT}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - job-manager-project
+
+  notification-worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: notification-worker
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+    depends_on:
+      redis-bullmq:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+    networks:
+      - job-manager-project
+
+  db:
+    image: postgres:alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      PGPORT: ${DATABASE_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME} -p ${DATABASE_PORT}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks:
+      - job-manager-project
+
+  redis-bullmq:
+    image: redis:alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - job-manager-project
+
+volumes:
+  pgdata:
+  redis_data:
+
+networks:
+  job-manager-project:
