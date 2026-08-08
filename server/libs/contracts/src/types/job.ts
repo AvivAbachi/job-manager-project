@@ -22,4 +22,5 @@ export interface UserJobPayload {
 export interface JobStatusUpdate {
   id: string;
   status: 'ACTIVE' | 'COMPLETED' | 'FAILED';
+  failAttempted?: number;
 }

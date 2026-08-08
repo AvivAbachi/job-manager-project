@@ -44,5 +44,6 @@ export class JobController implements OnApplicationBootstrap {
   @MessagePattern('update_job')
   async updateJob(@Payload() data: JobStatusUpdate) {
     await this.jobService.updateJob(data);
+    return { status: 'ok' };
   }
 }

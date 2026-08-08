@@ -73,6 +73,7 @@ export class JobProcessor extends WorkerHost {
       this.jobClient.send('update_job', {
         id: job.id!,
         status,
+        failAttempted: job.attemptsMade !== 0 ? job.attemptsMade : undefined,
       }),
     );
   }

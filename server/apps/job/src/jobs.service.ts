@@ -59,7 +59,7 @@ export class JobService {
     await this.prisma.jobOutbox.deleteMany({
       where: {
         jobId: {
-          in: toAdd.map((j) => j.opts.jobId as string),
+          in: toAdd.map((j) => j.opts.jobId),
         },
       },
     });
@@ -134,6 +134,7 @@ export class JobService {
       data: {
         status: data.status,
         completedAt: data.status === 'COMPLETED' ? new Date() : undefined,
+        failAttempted: data.failAttempted,
       },
     });
   }

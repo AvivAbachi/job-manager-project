@@ -5,20 +5,15 @@ import { admin } from 'better-auth/plugins';
 
 export function createAuth(prisma: PrismaService) {
   return betterAuth({
+    trustedOrigins: [
+      process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
+      process.env.CLIENT_URL ?? 'http://localhost:4173',
+    ],
     database: prismaAdapter(prisma, {
       provider: 'postgresql',
     }),
     emailAndPassword: {
       enabled: true,
-    },
-    user: {
-      additionalFields: {
-        role: {
-          type: 'string',
-          defaultValue: 'MEMBER',
-          input: false,
-        },
-      },
     },
     session: {
       cookieCache: {
