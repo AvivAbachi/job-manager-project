@@ -1,0 +1,12 @@
+allowBuilds:
+  '@astryxdesign/cli': true
+  '@astryxdesign/core': true
+  esbuild: true
+  lightningcss: true
+  unrs-resolver: true
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - '@tanstack/react-table@9.1.0'
+  - '@tanstack/table-core@9.1.0'
+  - '@types/node@26.2.0'
+  - eslint@10.8.1
