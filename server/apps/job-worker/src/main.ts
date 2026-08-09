@@ -1,11 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { JobWorkerModule } from './worker.module';
-import { Logger } from 'nestjs-pino';
+import { JobWorkerModule } from './job-worker.module';
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(JobWorkerModule, {
-    bufferLogs: true,
-  });
-  app.useLogger(app.get(Logger));
+  await NestFactory.createApplicationContext(JobWorkerModule);
 }
 bootstrap();

@@ -1,13 +1,12 @@
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
+import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
 
 @Processor('notification', { limiter: { duration: 10000, max: 20 } })
 export class NotificationProcessor extends WorkerHost {
-  constructor(
-    @InjectPinoLogger(NotificationProcessor.name)
-    private readonly logger: PinoLogger,
-  ) {
+  private readonly logger = new Logger(NotificationProcessor.name);
+
+  constructor() {
     super();
   }
 
@@ -28,38 +27,30 @@ export class NotificationProcessor extends WorkerHost {
 
   @OnWorkerEvent('active')
   onAdded(job: Job) {
-    this.logger.info(
-      { queue: 'notification', jobId: job.id },
-      'Notification job started',
+    this.logger.log(
+      `Notification job started (queue=notification, jobId=${job.id})`,
     );
   }
 
   @OnWorkerEvent('completed')
   onCompleted(job: Job) {
-    this.logger.info(
-      { queue: 'notification', jobId: job.id },
-      'Notification job completed',
+    this.logger.log(
+      `Notification job completed (queue=notification, jobId=${job.id})`,
     );
   }
 
   @OnWorkerEvent('progress')
   onProgress(job: Job) {
-    this.logger.info(
-      { queue: 'notification', jobId: job.id, progress: job.progress },
-      'Notification job progress updated',
+    this.logger.log(
+      `Notification job progress updated (queue=notification, jobId=${job.id}, progress=${job.progress})`,
     );
   }
 
   @OnWorkerEvent('failed')
   onFailed(job: Job, error: Error) {
     this.logger.error(
-      {
-        err: error,
-        queue: 'notification',
-        jobId: job.id,
-        attemptsMade: job.attemptsMade,
-      },
-      'Notification job failed',
+      `Notification job failed (queue=notification, jobId=${job.id}, attemptsMade=${job.attemptsMade})`,
+      error.stack,
     );
   }
 }

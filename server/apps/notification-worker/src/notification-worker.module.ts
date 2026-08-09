@@ -1,12 +1,9 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { NotificationProcessor } from './worker';
-import { LoggerModule } from 'nestjs-pino';
-import { createLoggerParams } from '@app/contracts';
+import { NotificationProcessor } from './notification-worker.processor';
 
 @Module({
   imports: [
-    LoggerModule.forRoot(createLoggerParams('notification-worker')),
     BullModule.forRoot({
       connection: {
         host: process.env.REDIS_HOST ?? 'localhost',

@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { JobProcessor } from './worker';
+import { JobProcessor } from './job-worker.processor';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { LoggerModule } from 'nestjs-pino';
-import { createLoggerParams } from '@app/contracts';
 
 @Module({
   imports: [
-    LoggerModule.forRoot(createLoggerParams('job-worker')),
     ClientsModule.register([
       {
         name: 'JOB_CLIENT',

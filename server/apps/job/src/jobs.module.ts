@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { JobController } from './jobs.controller';
-import { PrismaModule, createLoggerParams } from '@app/contracts';
+import { PrismaModule } from '@app/contracts';
 import { JobService } from './jobs.service';
-import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
-    LoggerModule.forRoot(createLoggerParams('job')),
     PrismaModule,
     BullModule.forRoot({
       connection: {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { PrismaService } from '@app/contracts';
 import type {
   CreateJobPayload,

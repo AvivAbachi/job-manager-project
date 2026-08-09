@@ -8,7 +8,7 @@ A resilient, asynchronous job-processing service built with NestJS. Clients subm
 - Idempotent job submission using an `Idempotency-Key` header and a database uniqueness constraint.
 - Background processing with three attempts per job and rate-limited workers.
 - Transactional outbox recovery: jobs persisted before a crash are re-enqueued when the job service starts.
-- Structured Pino logs, request IDs, redacted credentials, and an aggregate health endpoint.
+- NestJS built-in logging and an aggregate health endpoint.
 
 ## Architecture
 
