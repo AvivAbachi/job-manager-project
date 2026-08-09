@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import {
-  Link,
   Outlet,
   createFileRoute,
   redirect,
   useNavigate,
+  Link,
 } from '@tanstack/react-router'
+import { Button } from '@astryxdesign/core/Button'
+import { ThemeToggle } from '../components/theme-toggle'
+import { JobCreationDialog } from '../components/job-creation-dialog'
 import { authClient, getSession, isAdmin } from '../lib/auth'
 import { clearProtectedQueries } from '../lib/query'
-import { Button } from '../components/ui'
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: async ({ location }) => {
@@ -23,58 +25,71 @@ export const Route = createFileRoute('/_app')({
 function AppLayout() {
   const { session } = Route.useRouteContext()
   const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const [isJobDialogOpen, setIsJobDialogOpen] = useState(false)
   async function signOut() {
     setSigningOut(true)
     await authClient.signOut()
     clearProtectedQueries()
     await navigate({ to: '/sign-in', search: { redirect: undefined } })
   }
+
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <Link className="brand" to="/jobs">
-          Job Manager
-        </Link>
-        <Button
-          className="menu-button"
-          aria-expanded={open}
-          aria-controls="main-nav"
-          onClick={() => setOpen(!open)}
-        >
-          Menu
-        </Button>
-        <nav
-          id="main-nav"
-          className={open ? 'nav nav-open' : 'nav'}
-          aria-label="Main navigation"
-        >
-          <Link to="/jobs" activeProps={{ 'aria-current': 'page' }}>
-            My jobs
+      <header className="app-header">
+        <div className="app-bar">
+          <Link to="/jobs" className="brand">
+            Job Manager
           </Link>
-          <Link to="/jobs/new" activeProps={{ 'aria-current': 'page' }}>
-            Create job
-          </Link>
-          {isAdmin(session) && (
-            <Link to="/admin" activeProps={{ 'aria-current': 'page' }}>
-              All jobs
+          <nav className="app-nav" aria-label="Main navigation">
+            <Link to="/jobs" activeProps={{ 'aria-current': 'page' }}>
+              My jobs
             </Link>
-          )}
-        </nav>
-        <div className="identity">
-          <span>
-            <strong>{session.user.name}</strong>
-            <small>{session.user.email}</small>
-          </span>
-          <Button onClick={() => void signOut()} disabled={signingOut}>
-            {signingOut ? 'Signing out…' : 'Sign out'}
-          </Button>
+            <Button
+              label="Create job"
+              variant="secondary"
+              onClick={() => setIsJobDialogOpen(true)}
+            />
+            {isAdmin(session) && (
+              <>
+                <Link to="/admin" activeProps={{ 'aria-current': 'page' }}>
+                  All jobs
+                </Link>
+                <Link
+                  to="/admin/users"
+                  activeProps={{ 'aria-current': 'page' }}
+                >
+                  Users
+                </Link>
+              </>
+            )}
+          </nav>
+          <div className="account">
+            <span className="avatar" aria-hidden="true">
+              {session.user.name.slice(0, 1).toUpperCase()}
+            </span>
+            <span className="account-copy">
+              <strong>{session.user.name}</strong>
+              <span>{session.user.email}</span>
+            </span>
+            <ThemeToggle />
+            <Button
+              label={signingOut ? 'Signing out…' : 'Sign out'}
+              variant="secondary"
+              isLoading={signingOut}
+              onClick={() => void signOut()}
+            />
+          </div>
         </div>
       </header>
-      <div className="content">
+      <main className="app-content">
         <Outlet />
-      </div>
+      </main>
+      <JobCreationDialog
+        isAdmin={isAdmin(session)}
+        isOpen={isJobDialogOpen}
+        onOpenChange={setIsJobDialogOpen}
+      />
     </div>
   )
 }

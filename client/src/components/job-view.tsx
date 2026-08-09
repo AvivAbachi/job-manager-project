@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
+import { Badge, HStack, Stack, Text } from '@astryxdesign/core'
 import type { Job } from '../lib/types'
-import { StatusBadge } from './ui'
 
 const date = (value: string | null) =>
   value
@@ -51,23 +51,39 @@ export function JobFacts({ job }: { job: Job }) {
 
 export function JobCard({ job }: { job: Job }) {
   return (
-    <article className="surface job-card">
-      <div className="row">
-        <div>
-          <p className="eyebrow">Job</p>
-          <h2>{job.id}</h2>
-        </div>
-        <StatusBadge status={job.status} />
-      </div>
-      <p>
-        {job.totalStages} stages over {duration(job.totalTime)}
-      </p>
-      <p className="muted">Updated {date(job.updatedAt)}</p>
-      <Link className="text-link" to="/jobs/$jobId" params={{ jobId: job.id }}>
-        View details →
-      </Link>
+    <article className="job-card">
+      <Stack gap={3}>
+        <HStack justify="between" align="start">
+          <div>
+            <Text type="supporting">Job</Text>
+            <h2>{job.id}</h2>
+          </div>
+          <StatusBadge status={job.status} />
+        </HStack>
+        <Text display="block">
+          {job.totalStages} stages over {duration(job.totalTime)}
+        </Text>
+        <Text type="supporting" display="block">
+          Updated {date(job.updatedAt)}
+        </Text>
+        <Link to="/jobs/$jobId" params={{ jobId: job.id }}>
+          View details →
+        </Link>
+      </Stack>
     </article>
   )
+}
+
+export function StatusBadge({ status }: { status: Job['status'] }) {
+  const variant =
+    status === 'COMPLETED'
+      ? 'success'
+      : status === 'FAILED'
+        ? 'error'
+        : status === 'ACTIVE'
+          ? 'info'
+          : 'neutral'
+  return <Badge variant={variant} label={status.toLowerCase()} />
 }
 
 export function hasActiveJobs(jobs: Job[]) {

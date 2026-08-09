@@ -22,6 +22,13 @@ export const jobKeys = {
   admin: () => [...jobKeys.all, 'admin'] as const,
 }
 
+export const adminUserKeys = {
+  all: ['admin-users'] as const,
+  list: (search: string, field: 'email' | 'name', offset: number) =>
+    [...adminUserKeys.all, search, field, offset] as const,
+}
+
 export function clearProtectedQueries() {
   queryClient.removeQueries({ queryKey: jobKeys.all })
+  queryClient.removeQueries({ queryKey: adminUserKeys.all })
 }

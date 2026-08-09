@@ -18,12 +18,12 @@ const config = defineConfig(({ mode }) => {
       tanstackRouter({ target: 'react', autoCodeSplitting: true }),
       viteReact(),
     ],
-server: {
-proxy: { '/api/auth': { target }, '^/job(?:/|$)': { target } },
-},
-preview: {
-proxy: { '/api/auth': { target }, '^/job(?:/|$)': { target } },
-},
+    server: {
+      proxy: { '/api/auth': { target }, '/job': { target } },
+    },
+    preview: {
+      proxy: { '/api/auth': { target }, '/job': { target } },
+    },
   }
 })
 

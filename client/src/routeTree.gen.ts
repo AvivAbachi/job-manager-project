@@ -13,10 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as AppAdminIndexRouteImport } from './routes/_app.admin.index'
+import { Route as AppAdminUsersRouteImport } from './routes/_app.admin.users'
 import { Route as AppJobsIndexRouteImport } from './routes/_app.jobs.index'
 import { Route as AppJobsJobIdRouteImport } from './routes/_app.jobs.$jobId'
-import { Route as AppJobsNewRouteImport } from './routes/_app.jobs.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -37,9 +37,14 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppAdminRoute = AppAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => AppRoute,
 } as any)
 const AppJobsIndexRoute = AppJobsIndexRouteImport.update({
@@ -52,28 +57,23 @@ const AppJobsJobIdRoute = AppJobsJobIdRouteImport.update({
   path: '/jobs/$jobId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppJobsNewRoute = AppJobsNewRouteImport.update({
-  id: '/jobs/new',
-  path: '/jobs/new',
-  getParentRoute: () => AppRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/register': typeof RegisterRoute
   '/sign-in': typeof SignInRoute
-  '/admin': typeof AppAdminRoute
+  '/admin/users': typeof AppAdminUsersRoute
   '/jobs/$jobId': typeof AppJobsJobIdRoute
-  '/jobs/new': typeof AppJobsNewRoute
+  '/admin/': typeof AppAdminIndexRoute
   '/jobs/': typeof AppJobsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/register': typeof RegisterRoute
   '/sign-in': typeof SignInRoute
-  '/admin': typeof AppAdminRoute
+  '/admin/users': typeof AppAdminUsersRoute
   '/jobs/$jobId': typeof AppJobsJobIdRoute
-  '/jobs/new': typeof AppJobsNewRoute
+  '/admin': typeof AppAdminIndexRoute
   '/jobs': typeof AppJobsIndexRoute
 }
 export interface FileRoutesById {
@@ -82,9 +82,9 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/register': typeof RegisterRoute
   '/sign-in': typeof SignInRoute
-  '/_app/admin': typeof AppAdminRoute
+  '/_app/admin/users': typeof AppAdminUsersRoute
   '/_app/jobs/$jobId': typeof AppJobsJobIdRoute
-  '/_app/jobs/new': typeof AppJobsNewRoute
+  '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/jobs/': typeof AppJobsIndexRoute
 }
 export interface FileRouteTypes {
@@ -93,18 +93,18 @@ export interface FileRouteTypes {
     | '/'
     | '/register'
     | '/sign-in'
-    | '/admin'
+    | '/admin/users'
     | '/jobs/$jobId'
-    | '/jobs/new'
+    | '/admin/'
     | '/jobs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/register'
     | '/sign-in'
-    | '/admin'
+    | '/admin/users'
     | '/jobs/$jobId'
-    | '/jobs/new'
+    | '/admin'
     | '/jobs'
   id:
     | '__root__'
@@ -112,9 +112,9 @@ export interface FileRouteTypes {
     | '/_app'
     | '/register'
     | '/sign-in'
-    | '/_app/admin'
+    | '/_app/admin/users'
     | '/_app/jobs/$jobId'
-    | '/_app/jobs/new'
+    | '/_app/admin/'
     | '/_app/jobs/'
   fileRoutesById: FileRoutesById
 }
@@ -155,11 +155,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/admin': {
-      id: '/_app/admin'
+    '/_app/admin/': {
+      id: '/_app/admin/'
       path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AppAdminRouteImport
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/users': {
+      id: '/_app/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AppAdminUsersRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/jobs/': {
@@ -176,27 +183,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppJobsJobIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/jobs/new': {
-      id: '/_app/jobs/new'
-      path: '/jobs/new'
-      fullPath: '/jobs/new'
-      preLoaderRoute: typeof AppJobsNewRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
 interface AppRouteChildren {
-  AppAdminRoute: typeof AppAdminRoute
+  AppAdminUsersRoute: typeof AppAdminUsersRoute
   AppJobsJobIdRoute: typeof AppJobsJobIdRoute
-  AppJobsNewRoute: typeof AppJobsNewRoute
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
   AppJobsIndexRoute: typeof AppJobsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAdminRoute: AppAdminRoute,
+  AppAdminUsersRoute: AppAdminUsersRoute,
   AppJobsJobIdRoute: AppJobsJobIdRoute,
-  AppJobsNewRoute: AppJobsNewRoute,
+  AppAdminIndexRoute: AppAdminIndexRoute,
   AppJobsIndexRoute: AppJobsIndexRoute,
 }
 

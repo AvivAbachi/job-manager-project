@@ -8,9 +8,15 @@ export interface Job {
   totalTime: number
   totalStages: number
   status: JobStatus
+  progress: number
   createdAt: string
   updatedAt: string
   completedAt: string | null
+}
+
+export interface JobList {
+  jobs: Job[]
+  total: Record<JobStatus, number>
 }
 
 export interface CreateJobInput {
@@ -31,6 +37,21 @@ export interface SessionUser {
 export interface AppSession {
   user: SessionUser
   session: { id: string; expiresAt: string | Date }
+}
+
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role?: string | null
+  banned: boolean | null
+  banReason?: string | null
+  banExpires?: string | null
+}
+
+export interface AdminUserList {
+  users: AdminUser[]
+  total: number
 }
 
 export type ApiErrorKind =

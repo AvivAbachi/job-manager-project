@@ -8,19 +8,30 @@ import {
   useTable,
 } from '@tanstack/react-table'
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { StatusBadge, Button, PageState } from '../components/ui'
+import {
+  Button,
+  Card,
+  EmptyState,
+  Grid,
+  Selector,
+  Stack,
+  Table,
+  TextInput,
+} from '@astryxdesign/core'
+import { StatusBadge } from '../components/job-view'
 import { authClient, getSession, isAdmin } from '../lib/auth'
 import { jobsApi } from '../lib/api'
 import { jobKeys, queryClient } from '../lib/query'
 import { ApiError } from '../lib/types'
 import type { Job, JobStatus } from '../lib/types'
 
-export const Route = createFileRoute('/_app/admin')({
+export const Route = createFileRoute('/_app/admin/')({
   beforeLoad: async () => {
     if (!isAdmin(await getSession())) throw redirect({ to: '/jobs' })
   },
   component: AdminPage,
 })
+const pageSize = 100
 const features = tableFeatures({
   rowSortingFeature,
   sortedRowModel: createSortedRowModel(),
@@ -47,14 +58,21 @@ const columns = helper.columns([
 function AdminPage() {
   const [status, setStatus] = useState<JobStatus | ''>('')
   const [owner, setOwner] = useState('')
+  const [page, setPage] = useState(1)
   const query = useQuery({
-    queryKey: jobKeys.admin(),
-    queryFn: jobsApi.all,
+    queryKey: [...jobKeys.admin(), page],
+    queryFn: () => jobsApi.all(page, pageSize),
     retry: false,
+    refetchInterval: ({ state }) =>
+      state.data?.jobs.some(
+        (job) => job.status === 'PENDING' || job.status === 'ACTIVE',
+      )
+        ? 5_000
+        : false,
   })
   const data = useMemo(
     () =>
-      (query.data ?? []).filter(
+      (query.data?.jobs ?? []).filter(
         (job) =>
           (!status || job.status === status) &&
           (!owner || job.userId.toLowerCase().includes(owner.toLowerCase())),
@@ -66,36 +84,41 @@ function AdminPage() {
     data,
     columns,
   })
+  const statusCounts = query.data?.total
+  const totalJobs = Object.values(statusCounts ?? {}).reduce(
+    (sum, count) => sum + count,
+    0,
+  )
   if (query.error instanceof ApiError && query.error.kind === 'forbidden') {
     queryClient.removeQueries({ queryKey: jobKeys.admin() })
     void authClient.getSession()
     return (
-      <PageState title="Administrator access denied">
-        The server refused this request. Your role may have changed; sign in
-        again if this persists.
-      </PageState>
+      <EmptyState
+        title="Administrator access denied"
+        description="The server refused this request. Your role may have changed; sign in again if this persists."
+      />
     )
   }
   if (query.isPending)
     return (
-      <PageState title="Loading all jobs">
-        Retrieving the administrator job collection…
-      </PageState>
+      <EmptyState
+        title="Loading all jobs"
+        description="Retrieving the administrator job collection…"
+      />
     )
   if (query.isError)
     return (
-      <PageState
+      <EmptyState
         title="All jobs could not be loaded"
-        action={<Button onClick={() => void query.refetch()}>Retry</Button>}
-      >
-        {query.error.message}
-      </PageState>
+        description={query.error.message}
+        actions={<Button label="Retry" onClick={() => void query.refetch()} />}
+      />
     )
   return (
-    <main>
+    <Stack gap={5}>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">Administration</p>
+          <div className="eyebrow">Administration</div>
           <h1>All jobs</h1>
           <p>
             Inspect jobs across all owners. Backend authorization remains
@@ -103,58 +126,74 @@ function AdminPage() {
           </p>
         </div>
       </div>
-      <div className="filters surface">
-        <label>
-          Status
-          <select
+      <Card className="form-panel">
+        <Grid
+          columns={{ minWidth: 280, max: 3, repeat: 'fit' }}
+          rowGap={3}
+          columnGap={3}
+          align="end"
+        >
+          <Selector
+            label="Status"
+            options={['', 'PENDING', 'ACTIVE', 'COMPLETED', 'FAILED']}
             value={status}
-            onChange={(e) => setStatus(e.target.value as JobStatus | '')}
-          >
-            <option value="">All statuses</option>
-            <option>PENDING</option>
-            <option>ACTIVE</option>
-            <option>COMPLETED</option>
-            <option>FAILED</option>
-          </select>
-        </label>
-        <label>
-          Owner ID
-          <input
+            onChange={(value) => setStatus(value as JobStatus | '')}
+            placeholder="All statuses"
+          />
+          <TextInput
+            label="Owner ID"
             value={owner}
-            onChange={(e) => setOwner(e.target.value)}
+            onChange={setOwner}
             placeholder="Filter by owner"
           />
-        </label>
-        <Button
-          className="secondary"
-          onClick={() => {
-            setStatus('')
-            setOwner('')
-          }}
-        >
-          Clear filters
-        </Button>
+          <Button
+            label="Clear filters"
+            variant="secondary"
+            onClick={() => {
+              setStatus('')
+              setOwner('')
+            }}
+          />
+        </Grid>
+      </Card>
+      <div className="metrics-grid" aria-label="All job statistics">
+        <div className="metric-card">
+          <span className="metric-label">Total jobs</span>
+          <h2>{totalJobs}</h2>
+        </div>
+        {(
+          [
+            ['PENDING', 'Pending'],
+            ['ACTIVE', 'Active'],
+            ['COMPLETED', 'Completed'],
+            ['FAILED', 'Failed'],
+          ] as const
+        ).map(([status, label]) => (
+          <div key={status} className="metric-card">
+            <span className="metric-label">{label}</span>
+            <h2>{statusCounts?.[status] ?? 0}</h2>
+          </div>
+        ))}
       </div>
-      {query.data.length === 0 ? (
-        <PageState title="No jobs exist">
-          The administrator collection is empty.
-        </PageState>
+      {query.data.jobs.length === 0 ? (
+        <EmptyState
+          title="No jobs exist"
+          description="The administrator collection is empty."
+        />
       ) : data.length === 0 ? (
-        <PageState title="No matching jobs">
-          Clear or change the active filters.
-        </PageState>
+        <EmptyState
+          title="No matching jobs"
+          description="Clear or change the active filters."
+        />
       ) : (
-        <div className="table-wrap surface">
-          <table>
+        <div className="data-panel">
+          <Table>
             <thead>
               {table.getHeaderGroups().map((group) => (
                 <tr key={group.id}>
                   {group.headers.map((header) => (
                     <th key={header.id}>
-                      <button
-                        className="sort-button"
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
+                      <button onClick={header.column.getToggleSortingHandler()}>
                         <table.FlexRender header={header} />
                         <span aria-hidden="true">
                           {header.column.getIsSorted() === 'asc'
@@ -183,9 +222,24 @@ function AdminPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         </div>
       )}
-    </main>
+      <div className="filter-bar">
+        <span>Page {page}</span>
+        <Button
+          label="Previous"
+          variant="secondary"
+          onClick={() => setPage((current) => current - 1)}
+          isDisabled={page === 1 || query.isFetching}
+        />
+        <Button
+          label="Next"
+          variant="secondary"
+          onClick={() => setPage((current) => current + 1)}
+          isDisabled={page * pageSize >= totalJobs || query.isFetching}
+        />
+      </div>
+    </Stack>
   )
 }

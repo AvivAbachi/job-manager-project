@@ -1,7 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { JobFacts } from '../components/job-view'
-import { Button, PageState } from '../components/ui'
+import {
+  Button,
+  EmptyState,
+  Stack,
+} from '@astryxdesign/core'
+import { JobFacts, StatusBadge } from '../components/job-view'
 import { jobsApi } from '../lib/api'
 import { jobKeys } from '../lib/query'
 import { ApiError } from '../lib/types'
@@ -22,41 +26,56 @@ function JobDetailPage() {
         : false,
   })
   if (query.isPending)
-    return <PageState title="Loading job">Retrieving job details…</PageState>
+    return (
+      <EmptyState title="Loading job" description="Retrieving job details…" />
+    )
   if (query.error instanceof ApiError && query.error.kind === 'not-found')
     return (
-      <PageState title="Job unavailable">
-        This job does not exist or is not owned by your account.
-      </PageState>
+      <EmptyState
+        title="Job unavailable"
+        description="This job does not exist or is not owned by your account."
+      />
     )
   if (query.isError)
     return (
-      <PageState
+      <EmptyState
         title="Job could not be loaded"
-        action={<Button onClick={() => void query.refetch()}>Retry</Button>}
-      >
-        {query.error.message}
-      </PageState>
+        description={query.error.message}
+        actions={<Button label="Retry" onClick={() => void query.refetch()} />}
+      />
     )
   return (
-    <main className="narrow">
+    <Stack gap={5}>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">Job details</p>
+          <div className="eyebrow">Job details</div>
           <h1>{query.data.id}</h1>
           <p>Current configuration, progress, and timing.</p>
         </div>
         <Button
-          className="secondary"
+          label={query.isFetching ? 'Refreshing…' : 'Refresh'}
+          variant="secondary"
           onClick={() => void query.refetch()}
-          disabled={query.isFetching}
-        >
-          {query.isFetching ? 'Refreshing…' : 'Refresh'}
-        </Button>
+          isDisabled={query.isFetching}
+        />
       </div>
-      <section className="surface detail-surface">
-        <JobFacts job={query.data} />
-      </section>
-    </main>
+      <div className="detail-summary">
+        <section className="detail-panel">
+          <div className="eyebrow">Current state</div>
+          <StatusBadge status={query.data.status} />
+          <p className="detail-copy">
+            {query.data.status === 'FAILED'
+              ? `Processing stopped at stage ${query.data.failStage ?? 'unknown'}.`
+              : query.data.status === 'COMPLETED'
+                ? 'Processing completed successfully.'
+                : 'This job is still being processed. This page refreshes automatically.'}
+          </p>
+        </section>
+        <section className="detail-panel">
+          <div className="eyebrow">Job facts</div>
+          <JobFacts job={query.data} />
+        </section>
+      </div>
+    </Stack>
   )
 }

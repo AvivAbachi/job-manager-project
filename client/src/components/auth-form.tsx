@@ -1,8 +1,15 @@
 import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import {
+  Banner,
+  Button,
+  CheckboxInput,
+  FormLayout,
+  TextInput,
+} from '@astryxdesign/core'
 import { authClient } from '../lib/auth'
-import { Button, Field, Notice } from './ui'
+import { ThemeToggle } from './theme-toggle'
 
 export function safeDestination(value: unknown) {
   return typeof value === 'string' &&
@@ -27,7 +34,6 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'register' }) {
               name: value.name,
               email: value.email,
               password: value.password,
-              role: value.isAdmin ? 'admin' : 'user',
             }
       const result =
         mode === 'sign-in'
@@ -56,9 +62,12 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'register' }) {
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <p className="eyebrow">Job Manager</p>
+        <div className="auth-brand">
+          <span className="brand">Job Manager</span>
+          <ThemeToggle />
+        </div>
         <h1>{mode === 'sign-in' ? 'Welcome back' : 'Create your account'}</h1>
-        <p className="muted">
+        <p>
           {mode === 'sign-in'
             ? 'Sign in to manage your jobs.'
             : 'Register to submit and track jobs.'}
@@ -69,104 +78,122 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'register' }) {
             void form.handleSubmit()
           }}
         >
-          {mode === 'register' && (
+          <FormLayout>
+            {mode === 'register' && (
+              <form.Field
+                name="name"
+                validators={{
+                  onBlur: ({ value }) =>
+                    value.trim().length < 2
+                      ? 'Enter at least 2 characters.'
+                      : undefined,
+                }}
+              >
+                {(field) => (
+                  <TextInput
+                    label="Name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(value) => field.handleChange(value)}
+                    status={
+                      field.state.meta.errors[0]
+                        ? {
+                            type: 'error',
+                            message: field.state.meta.errors[0].toString(),
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </form.Field>
+            )}
             <form.Field
-              name="name"
+              name="email"
               validators={{
                 onBlur: ({ value }) =>
-                  value.trim().length < 2
-                    ? 'Enter at least 2 characters.'
-                    : undefined,
+                  /^\S+@\S+\.\S+$/.test(value)
+                    ? undefined
+                    : 'Enter a valid email address.',
               }}
             >
               {(field) => (
-                <Field
-                  id="name"
-                  label="Name"
-                  autoComplete="name"
+                <TextInput
+                  label="Email"
+                  type="email"
                   value={field.state.value}
                   onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  error={field.state.meta.errors[0]?.toString()}
+                  onChange={(value) => field.handleChange(value)}
+                  status={
+                    field.state.meta.errors[0]
+                      ? {
+                          type: 'error',
+                          message: field.state.meta.errors[0].toString(),
+                        }
+                      : undefined
+                  }
                 />
               )}
             </form.Field>
-          )}
-          <form.Field
-            name="email"
-            validators={{
-              onBlur: ({ value }) =>
-                /^\S+@\S+\.\S+$/.test(value)
-                  ? undefined
-                  : 'Enter a valid email address.',
-            }}
-          >
-            {(field) => (
-              <Field
-                id="email"
-                label="Email"
-                type="email"
-                autoComplete="email"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                error={field.state.meta.errors[0]?.toString()}
-              />
-            )}
-          </form.Field>
-          {mode === 'register' && (
-            <form.Field name="isAdmin">
-              {(field) => (
-                <label className="checkbox-field">
-                  <input
-                    type="checkbox"
-                    checked={field.state.value}
+            {mode === 'register' && (
+              <form.Field name="isAdmin">
+                {(field) => (
+                  <CheckboxInput
+                    label="Register as administrator"
+                    value={field.state.value}
                     onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.checked)}
+                    onChange={(value) => field.handleChange(value)}
                   />
-                  <span>Register as administrator</span>
-                </label>
+                )}
+              </form.Field>
+            )}
+            <form.Field
+              name="password"
+              validators={{
+                onBlur: ({ value }) =>
+                  value.length < 8 ? 'Use at least 8 characters.' : undefined,
+              }}
+            >
+              {(field) => (
+                <TextInput
+                  label="Password"
+                  type="password"
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(value) => field.handleChange(value)}
+                  status={
+                    field.state.meta.errors[0]
+                      ? {
+                          type: 'error',
+                          message: field.state.meta.errors[0].toString(),
+                        }
+                      : undefined
+                  }
+                />
               )}
             </form.Field>
-          )}
-          <form.Field
-            name="password"
-            validators={{
-              onBlur: ({ value }) =>
-                value.length < 8 ? 'Use at least 8 characters.' : undefined,
-            }}
-          >
-            {(field) => (
-              <Field
-                id="password"
-                label="Password"
-                type="password"
-                autoComplete={
-                  mode === 'sign-in' ? 'current-password' : 'new-password'
-                }
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                error={field.state.meta.errors[0]?.toString()}
-              />
-            )}
-          </form.Field>
-          {error && <Notice kind="error">{error}</Notice>}
-          <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-          >
-            {([canSubmit, isSubmitting]) => (
-              <Button type="submit" disabled={!canSubmit || isSubmitting}>
-                {isSubmitting
-                  ? 'Please wait…'
-                  : mode === 'sign-in'
-                    ? 'Sign in'
-                    : 'Create account'}
-              </Button>
-            )}
-          </form.Subscribe>
+            {error && <Banner status="error" title={error} />}
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+            >
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  isDisabled={!canSubmit || isSubmitting}
+                  isLoading={isSubmitting}
+                  variant="primary"
+                  label={
+                    isSubmitting
+                      ? 'Please wait…'
+                      : mode === 'sign-in'
+                        ? 'Sign in'
+                        : 'Create account'
+                  }
+                />
+              )}
+            </form.Subscribe>
+          </FormLayout>
         </form>
-        <p>
+        <p className="auth-switch">
           {mode === 'sign-in' ? (
             <>
               New here? <Link to="/register">Create an account</Link>
