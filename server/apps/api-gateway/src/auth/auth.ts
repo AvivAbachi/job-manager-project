@@ -2,7 +2,6 @@ import { betterAuth } from 'better-auth/minimal';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaService } from '@app/contracts';
 import { admin } from 'better-auth/plugins';
-import 'dotenv/config';
 
 export function createAuth(prisma: PrismaService) {
   return betterAuth({
@@ -16,12 +15,7 @@ export function createAuth(prisma: PrismaService) {
     emailAndPassword: {
       enabled: true,
     },
-    session: {
-      cookieCache: {
-        enabled: false,
-      },
-    },
-    plugins: [admin({})],
+    plugins: [admin()],
     // experimental: { joins: true },
   });
 }
