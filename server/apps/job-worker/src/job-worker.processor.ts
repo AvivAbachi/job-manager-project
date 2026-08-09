@@ -3,7 +3,7 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 
-@Processor('job', { limiter: { duration: 10000, max: 20 } })
+@Processor('job', { concurrency: 1000 })
 export class JobProcessor extends WorkerHost {
   private readonly logger = new Logger(JobProcessor.name);
 
@@ -16,6 +16,7 @@ export class JobProcessor extends WorkerHost {
       if (job.data.failStage === stage) throw Error();
       await new Promise((resolve) => setTimeout(resolve, time));
     }
+    await job.updateProgress(100);
   }
 
   @OnWorkerEvent('active')

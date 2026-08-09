@@ -1,6 +1,8 @@
 import { PrismaService } from '@app/contracts';
+import { JobStatus } from '@app/contracts/prisma/generate/enums';
 import type {
   CreateJobPayload,
+  PaginationPayload,
   UserJobPayload,
   UserJobsPayload,
 } from '@app/contracts/types/job';
@@ -11,15 +13,60 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
 
-  getAllJob() {
-    return this.prisma.job.findMany();
+  async getAllJob(data: PaginationPayload) {
+    const [jobs, pending, active, completed, failed] =
+      await this.prisma.$transaction([
+        this.prisma.job.findMany({
+          skip: (data.page - 1) * data.limit,
+          take: data.limit,
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.job.count({ where: { status: JobStatus.PENDING } }),
+        this.prisma.job.count({ where: { status: JobStatus.ACTIVE } }),
+        this.prisma.job.count({ where: { status: JobStatus.COMPLETED } }),
+        this.prisma.job.count({ where: { status: JobStatus.FAILED } }),
+      ]);
+    const total = {
+      [JobStatus.PENDING]: pending,
+      [JobStatus.ACTIVE]: active,
+      [JobStatus.COMPLETED]: completed,
+      [JobStatus.FAILED]: failed,
+    };
+
+    return { jobs, total };
   }
 
-  getJobsByUserId(data: UserJobsPayload) {
-    return this.prisma.job.findMany({
-      where: { userId: data.userId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async getJobsByUserId(data: UserJobsPayload) {
+    const where = { userId: data.userId };
+    const [jobs, pending, active, completed, failed] =
+      await this.prisma.$transaction([
+        this.prisma.job.findMany({
+          where,
+          orderBy: { createdAt: 'desc' },
+          skip: (data.page - 1) * data.limit,
+          take: data.limit,
+        }),
+        this.prisma.job.count({
+          where: { ...where, status: JobStatus.PENDING },
+        }),
+        this.prisma.job.count({
+          where: { ...where, status: JobStatus.ACTIVE },
+        }),
+        this.prisma.job.count({
+          where: { ...where, status: JobStatus.COMPLETED },
+        }),
+        this.prisma.job.count({
+          where: { ...where, status: JobStatus.FAILED },
+        }),
+      ]);
+    const total = {
+      [JobStatus.PENDING]: pending,
+      [JobStatus.ACTIVE]: active,
+      [JobStatus.COMPLETED]: completed,
+      [JobStatus.FAILED]: failed,
+    };
+
+    return { jobs, total };
   }
 
   getJobById(data: UserJobPayload) {

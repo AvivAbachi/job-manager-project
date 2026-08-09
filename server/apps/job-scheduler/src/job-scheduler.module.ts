@@ -19,7 +19,13 @@ import { MaintenanceProcessor } from './job-scheduler.processor';
         attempts: 3,
       },
     }),
-    BullModule.registerQueue({ name: 'scheduler' }),
+    BullModule.registerQueue({
+      name: 'scheduler',
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    }),
   ],
   controllers: [],
   providers: [JobSchedulerService, MaintenanceProcessor],

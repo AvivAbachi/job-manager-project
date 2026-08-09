@@ -1,5 +1,6 @@
 import type {
   CreateJobPayload,
+  PaginationPayload,
   UserJobPayload,
   UserJobsPayload,
 } from '@app/contracts/types/job';
@@ -17,8 +18,8 @@ export class JobController {
   }
 
   @MessagePattern('get_all_jobs')
-  getAllJob() {
-    return this.jobService.getAllJob();
+  getAllJob(@Payload() data: PaginationPayload) {
+    return this.jobService.getAllJob(data);
   }
 
   @MessagePattern('get_jobs_by_user')

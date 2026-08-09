@@ -10,7 +10,12 @@ export interface CreateJobPayload {
   key: string;
 }
 
-export interface UserJobsPayload {
+export interface PaginationPayload {
+  page: number;
+  limit: number;
+}
+
+export interface UserJobsPayload extends PaginationPayload {
   userId: string;
 }
 

@@ -195,6 +195,18 @@ services:
     networks:
       - job-manager-project
 
+  bullboard:
+    image: deadly0/bull-board
+    restart: unless-stopped
+    environment:
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+      BULL_PREFIX: bull
+    ports:
+      - 4000:3000
+    networks:
+      - job-manager-project
+
 volumes:
   pgdata:
   redis_data:

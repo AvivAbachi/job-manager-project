@@ -3,10 +3,13 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   Headers,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JobService } from './job.service';
@@ -24,13 +27,20 @@ export class JobController {
 
   @Get('all')
   @Roles(['admin'])
-  getAllJobs() {
-    return this.jobService.getAllJobs();
+  getAllJobs(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.jobService.getAllJobs(page, limit);
   }
 
   @Get('')
-  getJobsByUserId(@Session() session: UserSession) {
-    return this.jobService.getJobsByUser(session.user.id);
+  getJobsByUserId(
+    @Session() session: UserSession,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.jobService.getJobsByUser(session.user.id, page, limit);
   }
 
   @Get(':id')
