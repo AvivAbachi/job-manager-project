@@ -37,6 +37,15 @@
         "tsConfigPath": "apps/job/tsconfig.app.json"
       }
     },
+    "job-scheduler": {
+      "type": "application",
+      "root": "apps/job-scheduler",
+      "entryFile": "main",
+      "sourceRoot": "apps/job-scheduler/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/job-scheduler/tsconfig.app.json"
+      }
+    },
     "job-worker": {
       "type": "application",
       "root": "apps/job-worker",

@@ -7,13 +7,15 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 const services = [
   'api-gateway',
   'job',
+  'job-scheduler',
   'job-worker',
   'notification',
   'notification-worker',
 ];
 
 const args = process.argv.slice(2);
-const production = args.includes('--prod') || process.env.NODE_ENV === 'production';
+const production =
+  args.includes('--prod') || process.env.NODE_ENV === 'production';
 const watch = !production && !args.includes('--no-watch');
 const debug = !production && args.includes('--debug');
 const nestCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
@@ -37,8 +39,12 @@ function startService(service) {
   });
 
   children.set(service, child);
-  child.stdout.on('data', (data) => process.stdout.write(`[${service}] ${data}`));
-  child.stderr.on('data', (data) => process.stderr.write(`[${service}] ${data}`));
+  child.stdout.on('data', (data) =>
+    process.stdout.write(`[${service}] ${data}`),
+  );
+  child.stderr.on('data', (data) =>
+    process.stderr.write(`[${service}] ${data}`),
+  );
   child.on('error', (error) => {
     console.error(`[${service}] failed to start: ${error.message}`);
     shutdown(1);

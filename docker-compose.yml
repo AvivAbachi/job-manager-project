@@ -96,6 +96,29 @@ services:
     networks:
       - job-manager-project
 
+  job-scheduler:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        APP: job-scheduler
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-bullmq:
+        condition: service_healthy
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      REDIS_HOST: redis-bullmq
+      REDIS_PORT: 6379
+    networks:
+      - job-manager-project
+
   notification-server:
     build:
       context: ./server
