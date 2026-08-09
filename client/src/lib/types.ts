@@ -4,7 +4,6 @@ export interface Job {
   id: string
   key?: string
   userId: string
-  failAttempted: number | null
   failStage: number | null
   totalTime: number
   totalStages: number

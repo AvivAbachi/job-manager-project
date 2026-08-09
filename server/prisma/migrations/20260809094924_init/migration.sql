@@ -12,6 +12,9 @@ CREATE TABLE "User" (
     "emailVerified" BOOLEAN NOT NULL,
     "image" TEXT,
     "role" "Role" NOT NULL DEFAULT 'user',
+    "banned" BOOLEAN NOT NULL DEFAULT false,
+    "banReason" TEXT,
+    "banExpires" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -27,6 +30,7 @@ CREATE TABLE "Session" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "ipAddress" TEXT,
     "userAgent" TEXT,
+    "impersonatedBy" TEXT,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
@@ -68,7 +72,6 @@ CREATE TABLE "Job" (
     "id" TEXT NOT NULL,
     "key" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "failAttempted" INTEGER,
     "failStage" INTEGER,
     "totalTime" INTEGER NOT NULL,
     "totalStages" INTEGER NOT NULL,

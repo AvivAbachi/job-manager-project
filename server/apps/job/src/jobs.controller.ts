@@ -1,20 +1,15 @@
 import type {
   CreateJobPayload,
   UserJobPayload,
-  JobStatusUpdate,
   UserJobsPayload,
 } from '@app/contracts/types/job';
-import { Controller, OnApplicationBootstrap } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { JobService } from './jobs.service';
 
 @Controller('job')
-export class JobController implements OnApplicationBootstrap {
+export class JobController {
   constructor(private readonly jobService: JobService) {}
-
-  async onApplicationBootstrap() {
-    await this.jobService.onApplicationBootstrap();
-  }
 
   @MessagePattern('health')
   health() {
@@ -39,11 +34,5 @@ export class JobController implements OnApplicationBootstrap {
   @MessagePattern('create_job')
   async createJob(@Payload() data: CreateJobPayload) {
     return this.jobService.createJob(data);
-  }
-
-  @MessagePattern('update_job')
-  async updateJob(@Payload() data: JobStatusUpdate) {
-    await this.jobService.updateJob(data);
-    return { status: 'ok' };
   }
 }

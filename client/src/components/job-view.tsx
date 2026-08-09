@@ -34,10 +34,6 @@ export function JobFacts({ job }: { job: Job }) {
         <dd>{job.failStage === null ? 'None' : job.failStage}</dd>
       </div>
       <div>
-        <dt>Failure attempted</dt>
-        <dd>{job.failAttempted ?? '—'}</dd>
-      </div>
-      <div>
         <dt>Created</dt>
         <dd>{date(job.createdAt)}</dd>
       </div>

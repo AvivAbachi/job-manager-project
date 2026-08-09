@@ -24,7 +24,7 @@ model User {
   role          Role      @default(user)
   banned        Boolean   @default(false)
   banReason     String?
-  banExpires     DateTime?
+  banExpires    DateTime?
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
@@ -38,16 +38,16 @@ enum Role {
 }
 
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime
+  updatedAt      DateTime
+  ipAddress      String?
+  userAgent      String?
   impersonatedBy String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -96,16 +96,16 @@ model Job {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  failAttempted Int?
-  failStage     Int?
-  totalTime     Int
-  totalStages   Int
+  failStage   Int?
+  totalTime   Int
+  totalStages Int
 
   status JobStatus @default(PENDING)
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   completedAt DateTime?
+
   jobOutboxId String?
   jobOutbox   JobOutbox?
 
