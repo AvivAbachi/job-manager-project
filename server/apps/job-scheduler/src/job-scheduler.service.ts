@@ -17,7 +17,7 @@ export class JobSchedulerService implements OnModuleInit {
 
     await this.schedulerQueue.upsertJobScheduler(
       'reconciliation',
-      { every: 30_000 },
+      { every: 10_000 },
       { name: 'reconcile' },
     );
   }

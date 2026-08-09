@@ -2,13 +2,14 @@ import { betterAuth } from 'better-auth/minimal';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaService } from '@app/contracts';
 import { admin } from 'better-auth/plugins';
+import 'dotenv/config';
 
 export function createAuth(prisma: PrismaService) {
   return betterAuth({
     trustedOrigins: [
-      process.env.BETTER_AUTH_URL ?? 'http://localhost:3000',
-      process.env.CLIENT_URL ?? 'http://localhost:4173',
-    ],
+      process.env.BETTER_AUTH_URL,
+      process.env.CLIENT_URL,
+    ].filter((url) => url !== undefined),
     database: prismaAdapter(prisma, {
       provider: 'postgresql',
     }),
@@ -17,11 +18,10 @@ export function createAuth(prisma: PrismaService) {
     },
     session: {
       cookieCache: {
-        enabled: true,
-        maxAge: 5 * 60,
+        enabled: false,
       },
     },
-    plugins: [admin()],
+    plugins: [admin({})],
     // experimental: { joins: true },
   });
 }

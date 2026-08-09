@@ -19,7 +19,7 @@ export class JobService {
   }
 
   getAllJobs() {
-    return this.jobClient.send('get_all_jobs', undefined);
+    return this.jobClient.send('get_all_jobs', {});
   }
 
   getJobsByUser(userId: string) {
