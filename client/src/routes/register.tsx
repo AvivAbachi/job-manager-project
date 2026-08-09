@@ -1,9 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
+import { AuthForm } from '../components/auth-form'
 import { getSession } from '../lib/auth'
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/register')({
   beforeLoad: async () => {
     if (await getSession()) throw redirect({ to: '/jobs' })
-    throw redirect({ to: '/sign-in', search: { redirect: undefined } })
   },
+  component: () => <AuthForm mode="register" />,
 })
