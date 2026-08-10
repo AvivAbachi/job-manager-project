@@ -1,4 +1,12 @@
 export type JobStatus = 'PENDING' | 'ACTIVE' | 'COMPLETED' | 'FAILED'
+export type JobSortBy = 'id' | 'status' | 'totalStages' | 'totalTime' | 'updatedAt'
+export type SortOrder = 'asc' | 'desc'
+
+export interface JobListParams {
+  status?: JobStatus
+  sortBy?: JobSortBy
+  sortOrder?: SortOrder
+}
 
 export interface Job {
   id: string

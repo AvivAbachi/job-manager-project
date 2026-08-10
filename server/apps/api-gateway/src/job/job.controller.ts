@@ -1,4 +1,4 @@
-import type { JobDetails } from '@app/contracts/types/job';
+import type { JobDetails, JobSortBy } from '@app/contracts/types/job';
 import {
   BadRequestException,
   Body,
@@ -19,6 +19,8 @@ import {
   Session,
   type UserSession,
 } from '@thallesp/nestjs-better-auth';
+import { JobStatus } from '@app/contracts/prisma/generate/enums';
+import { SortOrder } from '@app/contracts/prisma/generate/internal/prismaNamespace';
 
 @Controller('job')
 @UseGuards(AuthGuard)
@@ -30,8 +32,13 @@ export class JobController {
   getAllJobs(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('status') status?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
-    return this.jobService.getAllJobs(page, limit);
+    return this.jobService.getAllJobs(
+      this.jobListPayload(page, limit, status, sortBy, sortOrder),
+    );
   }
 
   @Get('')
@@ -39,8 +46,52 @@ export class JobController {
     @Session() session: UserSession,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('status') status?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: string,
   ) {
-    return this.jobService.getJobsByUser(session.user.id, page, limit);
+    return this.jobService.getJobsByUser(
+      session.user.id,
+      this.jobListPayload(page, limit, status, sortBy, sortOrder),
+    );
+  }
+
+  private jobListPayload(
+    page: number,
+    limit: number,
+    status?: string,
+    sortBy?: string,
+    sortOrder?: string,
+  ) {
+    const validStatuses = ['PENDING', 'ACTIVE', 'COMPLETED', 'FAILED'];
+    const validSortFields = [
+      'id',
+      'status',
+      'totalStages',
+      'totalTime',
+      'updatedAt',
+    ];
+    const validSortOrders = ['asc', 'desc'];
+    if (status && !validStatuses.includes(status))
+      throw new BadRequestException();
+    if (sortBy && !validSortFields.includes(sortBy))
+      throw new BadRequestException();
+    if (sortOrder && !validSortOrders.includes(sortOrder))
+      throw new BadRequestException();
+
+    return {
+      page,
+      limit,
+      ...(status && {
+        status: status as JobStatus,
+      }),
+      ...(sortBy && {
+        sortBy: sortBy as JobSortBy,
+      }),
+      ...(sortOrder && {
+        sortOrder: sortOrder as SortOrder,
+      }),
+    };
   }
 
   @Get(':id')

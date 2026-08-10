@@ -2,7 +2,7 @@ import { PrismaService } from '@app/contracts';
 import { JobStatus } from '@app/contracts/prisma/generate/enums';
 import type {
   CreateJobPayload,
-  PaginationPayload,
+  JobListPayload,
   UserJobPayload,
   UserJobsPayload,
 } from '@app/contracts/types/job';
@@ -13,13 +13,16 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 export class JobService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllJob(data: PaginationPayload) {
+  async getAllJob(data: JobListPayload) {
+    const where = data.status ? { status: data.status } : undefined;
+    const orderBy = this.orderBy(data);
     const [jobs, pending, active, completed, failed] =
       await this.prisma.$transaction([
         this.prisma.job.findMany({
           skip: (data.page - 1) * data.limit,
           take: data.limit,
-          orderBy: { createdAt: 'desc' },
+          where,
+          orderBy,
         }),
         this.prisma.job.count({ where: { status: JobStatus.PENDING } }),
         this.prisma.job.count({ where: { status: JobStatus.ACTIVE } }),
@@ -37,12 +40,16 @@ export class JobService {
   }
 
   async getJobsByUserId(data: UserJobsPayload) {
-    const where = { userId: data.userId };
+    const where = {
+      userId: data.userId,
+      ...(data.status && { status: data.status }),
+    };
+    const orderBy = this.orderBy(data);
     const [jobs, pending, active, completed, failed] =
       await this.prisma.$transaction([
         this.prisma.job.findMany({
           where,
-          orderBy: { createdAt: 'desc' },
+          orderBy,
           skip: (data.page - 1) * data.limit,
           take: data.limit,
         }),
@@ -73,6 +80,23 @@ export class JobService {
     return this.prisma.job.findFirst({
       where: { id: data.id, userId: data.userId },
     });
+  }
+
+  private orderBy(data: JobListPayload) {
+    if (!data.sortBy) return undefined;
+    const order = data.sortOrder ?? 'desc';
+    switch (data.sortBy) {
+      case 'id':
+        return { id: order };
+      case 'status':
+        return { status: order };
+      case 'totalStages':
+        return { totalStages: order };
+      case 'totalTime':
+        return { totalTime: order };
+      case 'updatedAt':
+        return { updatedAt: order };
+    }
   }
 
   async createJob(data: CreateJobPayload) {

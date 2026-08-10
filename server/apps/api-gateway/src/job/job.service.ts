@@ -1,7 +1,7 @@
 import type {
   CreateJobPayload,
   JobDetails,
-  PaginationPayload,
+  JobListPayload,
   UserJobPayload,
   UserJobsPayload,
 } from '@app/contracts/types/job';
@@ -19,18 +19,14 @@ export class JobService {
     );
   }
 
-  getAllJobs(page: number, limit: number) {
-    return this.jobClient.send<unknown, PaginationPayload>('get_all_jobs', {
-      page,
-      limit,
-    });
+  getAllJobs(data: JobListPayload) {
+    return this.jobClient.send<unknown, JobListPayload>('get_all_jobs', data);
   }
 
-  getJobsByUser(userId: string, page: number, limit: number) {
+  getJobsByUser(userId: string, data: JobListPayload) {
     return this.jobClient.send<unknown, UserJobsPayload>('get_jobs_by_user', {
       userId,
-      page,
-      limit,
+      ...data,
     });
   }
 

@@ -1,3 +1,5 @@
+import type { JobStatus } from '../prisma/generate/enums';
+
 export interface JobDetails {
   failStage: number | null;
   totalStages: number;
@@ -15,7 +17,17 @@ export interface PaginationPayload {
   limit: number;
 }
 
-export interface UserJobsPayload extends PaginationPayload {
+export type JobSortBy =
+  'id' | 'status' | 'totalStages' | 'totalTime' | 'updatedAt';
+export type SortOrder = 'asc' | 'desc';
+
+export interface JobListPayload extends PaginationPayload {
+  status?: JobStatus;
+  sortBy?: JobSortBy;
+  sortOrder?: SortOrder;
+}
+
+export interface UserJobsPayload extends JobListPayload {
   userId: string;
 }
 

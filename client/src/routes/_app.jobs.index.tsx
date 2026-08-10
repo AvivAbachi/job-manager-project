@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { Button, EmptyState, Stack, Table } from '@astryxdesign/core'
-import { StatusBadge, hasActiveJobs } from '../components/job-view'
-import type { JobStatus } from '../lib/types'
+import { createFileRoute } from '@tanstack/react-router'
+import { Button, EmptyState, Stack } from '@astryxdesign/core'
+import { JobTable, hasActiveJobs } from '../components/job-view'
+import type { JobSortBy, JobStatus, SortOrder } from '../lib/types'
 import { jobsApi } from '../lib/api'
 import { jobKeys } from '../lib/query'
 
@@ -13,10 +13,17 @@ const pageSize = 100
 
 function JobsPage() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | 'ALL'>('ALL')
+  const [sortBy, setSortBy] = useState<JobSortBy | undefined>('updatedAt')
+  const [sortOrder, setSortOrder] = useState<SortOrder | undefined>('desc')
   const [page, setPage] = useState(1)
   const query = useQuery({
-    queryKey: [...jobKeys.member(), page],
-    queryFn: () => jobsApi.list(page, pageSize),
+    queryKey: [...jobKeys.member(), page, statusFilter, sortBy, sortOrder],
+    queryFn: () =>
+      jobsApi.list(page, pageSize, {
+        status: statusFilter === 'ALL' ? undefined : statusFilter,
+        sortBy,
+        sortOrder,
+      }),
     refetchInterval: ({ state }) =>
       state.data && hasActiveJobs(state.data.jobs) ? 5_000 : false,
   })
@@ -36,15 +43,13 @@ function JobsPage() {
       />
     )
   const jobs = query.data.jobs
-  const visibleJobs =
-    statusFilter === 'ALL'
-      ? jobs
-      : jobs.filter((job) => job.status === statusFilter)
   const statusCounts = query.data.total
   const totalJobs = Object.values(statusCounts).reduce(
     (sum, count) => sum + count,
     0,
   )
+  const matchingJobs =
+    statusFilter === 'ALL' ? totalJobs : statusCounts[statusFilter]
   return (
     <Stack gap={5}>
       <div className="page-heading">
@@ -75,7 +80,10 @@ function JobsPage() {
                 className="metric-card"
                 type="button"
                 aria-pressed={statusFilter === status}
-                onClick={() => setStatusFilter(status)}
+                onClick={() => {
+                  setStatusFilter(status)
+                  setPage(1)
+                }}
               >
                 <span className="metric-label">{label}</span>
                 <h2>{statusCounts[status]}</h2>
@@ -84,12 +92,15 @@ function JobsPage() {
           </div>
           <div className="filter-bar">
             <span>
-              Showing {visibleJobs.length} of {totalJobs} jobs
+              Showing {jobs.length} of {matchingJobs} jobs
             </span>
             <button
               type="button"
               className={statusFilter === 'ALL' ? 'filter-active' : undefined}
-              onClick={() => setStatusFilter('ALL')}
+              onClick={() => {
+                setStatusFilter('ALL')
+                setPage(1)
+              }}
             >
               All statuses
             </button>
@@ -101,45 +112,16 @@ function JobsPage() {
             />
           </div>
           <div className="data-panel">
-            <Table>
-              <thead>
-                <tr>
-                  <th>Job</th>
-                  <th>Status</th>
-                  <th>Stages</th>
-                  <th>Total time</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleJobs.map((job) => (
-                  <tr key={job.id}>
-                    <td data-label="Job">{job.id}</td>
-                    <td data-label="Status">
-                      <StatusBadge status={job.status} />
-                    </td>
-                    <td data-label="Stages">{job.totalStages}</td>
-                    <td data-label="Total time">
-                      {job.totalTime < 1000
-                        ? `${job.totalTime} ms`
-                        : `${(job.totalTime / 1000).toLocaleString()} s`}
-                    </td>
-                    <td data-label="Updated">
-                      {new Intl.DateTimeFormat(undefined, {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      }).format(new Date(job.updatedAt))}
-                    </td>
-                    <td data-label="Actions">
-                      <Link to="/jobs/$jobId" params={{ jobId: job.id }}>
-                        View details
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            <JobTable
+              jobs={jobs}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+              onSortChange={(nextSortBy, nextSortOrder) => {
+                setSortBy(nextSortBy)
+                setSortOrder(nextSortOrder)
+                setPage(1)
+              }}
+            />
           </div>
           <div className="filter-bar">
             <span>Page {page}</span>
@@ -153,7 +135,7 @@ function JobsPage() {
               label="Next"
               variant="secondary"
               onClick={() => setPage((current) => current + 1)}
-              isDisabled={page * pageSize >= totalJobs || query.isFetching}
+              isDisabled={page * pageSize >= matchingJobs || query.isFetching}
             />
           </div>
         </>

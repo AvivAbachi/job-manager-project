@@ -6,6 +6,7 @@ import type {
   CreateJobInput,
   Job,
   JobList,
+  JobListParams,
 } from './types'
 
 type UnauthorizedHandler = () => void
@@ -59,8 +60,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const jobsApi = {
-  list: (page: number, limit: number) =>
-    request<JobList>(`/job?page=${page}&limit=${limit}`),
+  list: (page: number, limit: number, params: JobListParams = {}) => {
+    const query = new URLSearchParams({ page: String(page), limit: String(limit) })
+    if (params.status) query.set('status', params.status)
+    if (params.sortBy) query.set('sortBy', params.sortBy)
+    if (params.sortOrder) query.set('sortOrder', params.sortOrder)
+    return request<JobList>(`/job?${query}`)
+  },
   detail: (id: string) => request<Job>(`/job/${encodeURIComponent(id)}`),
   all: (page: number, limit: number) =>
     request<JobList>(`/job/all?page=${page}&limit=${limit}`),
