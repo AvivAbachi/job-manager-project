@@ -14,12 +14,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { AdminGuard } from '../auth/admin.guard';
+import { AuthGuard } from '../auth/auth.guard';
 import {
-  AuthGuard,
-  Roles,
-  Session,
+  CurrentSession,
   type UserSession,
-} from '@thallesp/nestjs-better-auth';
+} from '../auth/current-session.decorator';
 import { JobService } from './job.service';
 
 @Controller('job')
@@ -28,7 +28,7 @@ export class JobController {
   constructor(private readonly jobService: JobService) {}
 
   @Get('all')
-  @Roles(['admin'])
+  @UseGuards(AdminGuard)
   getAllJobs(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -43,7 +43,7 @@ export class JobController {
 
   @Get('')
   getJobsByUserId(
-    @Session() session: UserSession,
+    @CurrentSession() session: UserSession,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('status') status?: string,
@@ -98,13 +98,13 @@ export class JobController {
   }
 
   @Get(':id')
-  getJobById(@Param('id') id: string, @Session() session: UserSession) {
+  getJobById(@Param('id') id: string, @CurrentSession() session: UserSession) {
     return this.jobService.getJobById(id, session.user.id);
   }
 
   @Post()
   createJob(
-    @Session() session: UserSession,
+    @CurrentSession() session: UserSession,
     @Body() data: JobDetails,
     @Headers('Idempotency-Key') key: string,
   ) {

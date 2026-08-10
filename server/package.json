@@ -32,6 +32,7 @@
     "better-auth": "^1.6.26",
     "bullmq": "^6.0.8",
     "dotenv": "^17.4.2",
+    "http-proxy-middleware": "^4.2.0",
     "ioredis": "^6.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"

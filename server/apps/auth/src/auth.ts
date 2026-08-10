@@ -9,13 +9,8 @@ export function createAuth(prisma: PrismaService) {
       process.env.BETTER_AUTH_URL,
       process.env.CLIENT_URL,
     ].filter((url) => url !== undefined),
-    database: prismaAdapter(prisma, {
-      provider: 'postgresql',
-    }),
-    emailAndPassword: {
-      enabled: true,
-    },
+    database: prismaAdapter(prisma, { provider: 'postgresql' }),
+    emailAndPassword: { enabled: true },
     plugins: [admin()],
-    // experimental: { joins: true },
   });
 }
