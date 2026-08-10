@@ -1,10 +1,6 @@
+import { Button, EmptyState, Stack } from '@astryxdesign/core'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  Button,
-  EmptyState,
-  Stack,
-} from '@astryxdesign/core'
 import { JobFacts, StatusBadge } from '../components/job-view'
 import { jobsApi } from '../lib/api'
 import { jobKeys } from '../lib/query'

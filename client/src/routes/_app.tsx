@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { Button } from '@astryxdesign/core/Button'
 import {
-  Outlet,
   createFileRoute,
+  Link,
+  Outlet,
   redirect,
   useNavigate,
-  Link,
 } from '@tanstack/react-router'
-import { Button } from '@astryxdesign/core/Button'
-import { ThemeToggle } from '../components/theme-toggle'
+import { useState } from 'react'
 import { JobCreationDialog } from '../components/job-creation-dialog'
+import { ThemeToggle } from '../components/theme-toggle'
 import { authClient, getSession, isAdmin } from '../lib/auth'
 import { clearProtectedQueries } from '../lib/query'
 

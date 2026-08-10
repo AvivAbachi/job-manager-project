@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import { useForm } from '@tanstack/react-form'
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import {
   Banner,
   Button,
@@ -8,6 +5,9 @@ import {
   FormLayout,
   TextInput,
 } from '@astryxdesign/core'
+import { useForm } from '@tanstack/react-form'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { useState } from 'react'
 import { authClient } from '../lib/auth'
 import { ThemeToggle } from './theme-toggle'
 

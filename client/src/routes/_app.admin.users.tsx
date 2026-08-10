@@ -1,13 +1,3 @@
-import { useEffect, useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import {
-  createColumnHelper,
-  createSortedRowModel,
-  rowSortingFeature,
-  tableFeatures,
-  useTable,
-} from '@tanstack/react-table'
-import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import {
   Banner,
   Button,
@@ -21,6 +11,16 @@ import {
   Text,
   TextInput,
 } from '@astryxdesign/core'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import {
+  createColumnHelper,
+  createSortedRowModel,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
+} from '@tanstack/react-table'
+import { useEffect, useState } from 'react'
 import { adminUsersApi } from '../lib/api'
 import { authClient, getSession, isAdmin } from '../lib/auth'
 import { adminUserKeys, clearProtectedQueries, queryClient } from '../lib/query'
@@ -168,11 +168,11 @@ function UsersPage() {
     <Stack gap={5}>
       <div className="page-heading">
         <div>
-        <div className="eyebrow">Administration</div>
-        <h1>User manager</h1>
-        <p>
-          Manage user roles and access. Changes are authorized by the server.
-        </p>
+          <div className="eyebrow">Administration</div>
+          <h1>User manager</h1>
+          <p>
+            Manage user roles and access. Changes are authorized by the server.
+          </p>
         </div>
       </div>
       <Card className="form-panel">

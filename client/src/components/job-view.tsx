@@ -1,3 +1,4 @@
+import { Badge, HStack, Stack, Table, Text } from '@astryxdesign/core'
 import { Link } from '@tanstack/react-router'
 import {
   createColumnHelper,
@@ -5,15 +6,14 @@ import {
   tableFeatures,
   useTable,
 } from '@tanstack/react-table'
-import { Badge, HStack, Stack, Table, Text } from '@astryxdesign/core'
 import type { Job, JobSortBy, SortOrder } from '../lib/types'
 
 const date = (value: string | null) =>
   value
     ? new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(value))
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(value))
     : '—'
 const duration = (ms: number) =>
   ms < 1000 ? `${ms} ms` : `${(ms / 1000).toLocaleString()} s`
@@ -68,7 +68,8 @@ export function JobTable({
       sorting: sortBy ? [{ id: sortBy, desc: sortOrder === 'desc' }] : [],
     },
     onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(table.state.sorting) : updater
+      const next =
+        typeof updater === 'function' ? updater(table.state.sorting) : updater
       const sorting = next.at(0)
       if (!sorting) return onSortChange()
       onSortChange(sorting.id as JobSortBy, sorting.desc ? 'desc' : 'asc')

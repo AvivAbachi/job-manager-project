@@ -61,7 +61,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const jobsApi = {
   list: (page: number, limit: number, params: JobListParams = {}) => {
-    const query = new URLSearchParams({ page: String(page), limit: String(limit) })
+    const query = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    })
     if (params.status) query.set('status', params.status)
     if (params.sortBy) query.set('sortBy', params.sortBy)
     if (params.sortOrder) query.set('sortOrder', params.sortOrder)

@@ -1,6 +1,6 @@
-import { betterAuth } from 'better-auth/minimal';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaService } from '@app/contracts';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { betterAuth } from 'better-auth/minimal';
 import { admin } from 'better-auth/plugins';
 
 export function createAuth(prisma: PrismaService) {

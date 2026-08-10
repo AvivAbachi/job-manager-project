@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { Button, EmptyState, Stack } from '@astryxdesign/core'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Button, EmptyState, Stack } from '@astryxdesign/core'
-import { JobTable, hasActiveJobs } from '../components/job-view'
-import type { JobSortBy, JobStatus, SortOrder } from '../lib/types'
+import { useState } from 'react'
+import { hasActiveJobs, JobTable } from '../components/job-view'
 import { jobsApi } from '../lib/api'
 import { jobKeys } from '../lib/query'
+import type { JobSortBy, JobStatus, SortOrder } from '../lib/types'
 
 export const Route = createFileRoute('/_app/jobs/')({ component: JobsPage })
 

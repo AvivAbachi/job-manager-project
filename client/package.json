@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@astryxdesign/cli": "^0.3.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@tanstack/devtools-vite": "latest",
     "@tanstack/eslint-config": "latest",
     "@tanstack/react-devtools": "latest",

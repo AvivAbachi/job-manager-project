@@ -1,16 +1,14 @@
-import { useEffect } from 'react'
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
-import { QueryClientProvider } from '@tanstack/react-query'
-
-import { FormDevtoolsPanel } from '@tanstack/react-form-devtools'
-import { TableDevtoolsPanel } from '@tanstack/react-table-devtools'
-import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 import { LinkProvider } from '@astryxdesign/core/Link'
 import { Theme } from '@astryxdesign/core/theme'
 import { neutralTheme } from '@astryxdesign/theme-neutral/built'
-
+import { TanStackDevtools } from '@tanstack/react-devtools'
+import { FormDevtoolsPanel } from '@tanstack/react-form-devtools'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
+import { createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import { TableDevtoolsPanel } from '@tanstack/react-table-devtools'
+import { useEffect } from 'react'
 import '../styles.css'
 import { setUnauthorizedHandler } from '../lib/api'
 import { clearProtectedQueries, queryClient } from '../lib/query'
@@ -63,12 +61,12 @@ function ThemedApp() {
               },
               {
                 name: 'TanStack Query',
-                render: <ReactQueryDevtoolsPanel />
+                render: <ReactQueryDevtoolsPanel />,
               },
               {
                 name: 'TanStack Table',
-                render: <TableDevtoolsPanel />
-              }
+                render: <TableDevtoolsPanel />,
+              },
             ]}
           />
         </QueryClientProvider>

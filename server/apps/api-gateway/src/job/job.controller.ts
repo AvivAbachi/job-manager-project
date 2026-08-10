@@ -1,3 +1,5 @@
+import { JobStatus } from '@app/contracts/prisma/generate/enums';
+import { SortOrder } from '@app/contracts/prisma/generate/internal/prismaNamespace';
 import type { JobDetails, JobSortBy } from '@app/contracts/types/job';
 import {
   BadRequestException,
@@ -12,15 +14,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { JobService } from './job.service';
 import {
   AuthGuard,
   Roles,
   Session,
   type UserSession,
 } from '@thallesp/nestjs-better-auth';
-import { JobStatus } from '@app/contracts/prisma/generate/enums';
-import { SortOrder } from '@app/contracts/prisma/generate/internal/prismaNamespace';
+import { JobService } from './job.service';
 
 @Controller('job')
 @UseGuards(AuthGuard)

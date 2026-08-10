@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { JobSchedulerService } from './job-scheduler.service';
-import { BullModule } from '@nestjs/bullmq';
 import { PrismaModule } from '@app/contracts';
+import { BullModule } from '@nestjs/bullmq';
+import { Module } from '@nestjs/common';
 import { MaintenanceProcessor } from './job-scheduler.processor';
+import { JobSchedulerService } from './job-scheduler.service';
 
 @Module({
   imports: [
