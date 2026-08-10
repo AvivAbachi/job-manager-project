@@ -54,24 +54,6 @@
       "compilerOptions": {
         "tsConfigPath": "apps/job-worker/tsconfig.app.json"
       }
-    },
-    "notification": {
-      "type": "application",
-      "root": "apps/notification",
-      "entryFile": "main",
-      "sourceRoot": "apps/notification/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/notification/tsconfig.app.json"
-      }
-    },
-    "notification-worker": {
-      "type": "application",
-      "root": "apps/notification-worker",
-      "entryFile": "main",
-      "sourceRoot": "apps/notification-worker/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/notification-worker/tsconfig.app.json"
-      }
     }
   }
 }

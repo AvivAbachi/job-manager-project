@@ -4,14 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-const services = [
-  'api-gateway',
-  'job',
-  'job-scheduler',
-  'job-worker',
-  'notification',
-  'notification-worker',
-];
+const services = ['api-gateway', 'job', 'job-scheduler', 'job-worker'];
 
 const args = process.argv.slice(2);
 const production =

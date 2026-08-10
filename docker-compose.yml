@@ -21,14 +21,10 @@ services:
         condition: service_healthy
       job-server:
         condition: service_healthy
-      notification-server:
-        condition: service_healthy
     environment:
       PORT: ${API_PORT}
       JOB_HOST: job-server
       JOB_PORT: ${JOB_PORT}
-      NOTIFICATION_HOST: notification-server
-      NOTIFICATION_PORT: ${NOTIFICATION_PORT}
       DATABASE_HOST: db
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_USER: ${DATABASE_USER}
@@ -114,46 +110,6 @@ services:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
-      REDIS_HOST: redis-bullmq
-      REDIS_PORT: 6379
-    networks:
-      - job-manager-project
-
-  notification-server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-      args:
-        APP: notification
-    restart: unless-stopped
-    depends_on:
-      redis-bullmq:
-        condition: service_healthy
-    environment:
-      PORT: ${NOTIFICATION_PORT}
-      REDIS_HOST: redis-bullmq
-      REDIS_PORT: 6379
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "127.0.0.1", "${NOTIFICATION_PORT}" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks:
-      - job-manager-project
-
-  notification-worker:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-      args:
-        APP: notification-worker
-    restart: unless-stopped
-    deploy:
-      replicas: 2
-    depends_on:
-      redis-bullmq:
-        condition: service_healthy
-    environment:
       REDIS_HOST: redis-bullmq
       REDIS_PORT: 6379
     networks:
