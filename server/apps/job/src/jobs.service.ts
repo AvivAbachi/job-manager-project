@@ -2,16 +2,24 @@ import { PrismaService } from '@app/contracts';
 import { JobStatus } from '@app/contracts/prisma/generate/enums';
 import type {
   CreateJobPayload,
+  JobDetails,
   JobListPayload,
   UserJobPayload,
   UserJobsPayload,
 } from '@app/contracts/types/job';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class JobService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(JobService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('job') private readonly jobQueue: Queue<JobDetails>,
+  ) {}
 
   async getAllJob(data: JobListPayload) {
     const where = data.status ? { status: data.status } : undefined;
@@ -100,6 +108,7 @@ export class JobService {
   }
 
   async createJob(data: CreateJobPayload) {
+    let created = false;
     try {
       await this.prisma.job.create({
         data: {
@@ -111,6 +120,7 @@ export class JobService {
           },
         },
       });
+      created = true;
     } catch (error) {
       if (
         !(error instanceof PrismaClientKnownRequestError) ||
@@ -133,6 +143,25 @@ export class JobService {
       if (data.details[key] !== job[key]) throw new ConflictException();
     }
 
+    if (created) await this.publish(job.id, data.details);
+
     return job;
+  }
+
+  private async publish(jobId: string, details: JobDetails) {
+    try {
+      await this.jobQueue.add('process', details, {
+        jobId,
+        attempts: 3,
+        removeOnComplete: 1_000,
+        removeOnFail: 1_000,
+      });
+      await this.prisma.jobOutbox.deleteMany({ where: { jobId } });
+    } catch (error) {
+      this.logger.error(
+        `Job ${jobId} remains in the outbox for retry after queue publication failed`,
+        error instanceof Error ? error.stack : undefined,
+      );
+    }
   }
 }

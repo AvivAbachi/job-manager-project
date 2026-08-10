@@ -17,6 +17,8 @@ import { JobSchedulerService } from './job-scheduler.service';
       name: 'job',
       defaultJobOptions: {
         attempts: 3,
+        removeOnComplete: 1_000,
+        removeOnFail: 1_000,
       },
     }),
     BullModule.registerQueue({

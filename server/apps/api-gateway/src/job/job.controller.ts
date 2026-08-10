@@ -72,6 +72,9 @@ export class JobController {
       'updatedAt',
     ];
     const validSortOrders = ['asc', 'desc'];
+    if (!Number.isInteger(page) || page < 1) throw new BadRequestException();
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100)
+      throw new BadRequestException();
     if (status && !validStatuses.includes(status))
       throw new BadRequestException();
     if (sortBy && !validSortFields.includes(sortBy))
@@ -106,7 +109,25 @@ export class JobController {
     @Headers('Idempotency-Key') key: string,
   ) {
     if (!key?.trim()) throw new BadRequestException();
+    this.validateDetails(data);
 
     return this.jobService.createJob(session.user.id, data, key);
+  }
+
+  private validateDetails(data: JobDetails) {
+    if (
+      !Number.isInteger(data.totalStages) ||
+      data.totalStages < 2 ||
+      data.totalStages > 50 ||
+      !Number.isInteger(data.totalTime) ||
+      data.totalTime < 1 ||
+      data.totalTime > 300_000 ||
+      (data.failStage !== null &&
+        (!Number.isInteger(data.failStage) ||
+          data.failStage < 0 ||
+          data.failStage >= data.totalStages))
+    ) {
+      throw new BadRequestException();
+    }
   }
 }

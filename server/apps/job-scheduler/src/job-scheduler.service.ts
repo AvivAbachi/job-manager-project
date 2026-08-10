@@ -11,14 +11,8 @@ export class JobSchedulerService implements OnModuleInit {
   async onModuleInit() {
     await this.schedulerQueue.upsertJobScheduler(
       'outbox-publisher',
-      { every: 5000 },
+      { every: 1000 },
       { name: 'publish-outbox' },
-    );
-
-    await this.schedulerQueue.upsertJobScheduler(
-      'reconciliation',
-      { every: 10_000 },
-      { name: 'reconcile' },
     );
   }
 }

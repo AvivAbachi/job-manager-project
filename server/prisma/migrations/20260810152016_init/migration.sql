@@ -108,10 +108,10 @@ CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 CREATE INDEX "Verification_identifier_idx" ON "Verification"("identifier");
 
 -- CreateIndex
-CREATE INDEX "Job_userId_idx" ON "Job"("userId");
+CREATE INDEX "Job_userId_status_updatedAt_idx" ON "Job"("userId", "status", "updatedAt");
 
 -- CreateIndex
-CREATE INDEX "Job_status_idx" ON "Job"("status");
+CREATE INDEX "Job_status_updatedAt_idx" ON "Job"("status", "updatedAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Job_userId_key_key" ON "Job"("userId", "key");

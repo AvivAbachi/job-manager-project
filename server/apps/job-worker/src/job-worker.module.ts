@@ -1,5 +1,7 @@
+import { PrismaModule } from '@app/contracts';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { JobStatusProcessor } from './job-status.processor';
 import { JobProcessor } from './job-worker.processor';
 
 @Module({
@@ -11,8 +13,10 @@ import { JobProcessor } from './job-worker.processor';
       },
     }),
     BullModule.registerQueue({ name: 'job' }),
+    BullModule.registerQueue({ name: 'job-status' }),
+    PrismaModule,
   ],
   controllers: [],
-  providers: [JobProcessor],
+  providers: [JobProcessor, JobStatusProcessor],
 })
 export class JobWorkerModule {}

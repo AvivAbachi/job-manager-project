@@ -110,8 +110,8 @@ model Job {
   jobOutbox   JobOutbox?
 
   @@unique([userId, key])
-  @@index([userId])
-  @@index([status])
+  @@index([userId, status, updatedAt])
+  @@index([status, updatedAt])
 }
 
 model JobOutbox {
