@@ -17,10 +17,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/my-nest-app/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/my-nest-app/test/jest-e2e.json",
+    "prisma:generate": "prisma generate --schema libs/contracts/src/prisma/auth.prisma && prisma generate --schema libs/contracts/src/prisma/jobs.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --config libs/contracts/src/prisma/auth.prisma.config.ts && prisma migrate deploy --config libs/contracts/src/prisma/jobs.prisma.config.ts"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.6.26",
+    "@better-auth/redis-storage": "^1.6.26",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.1.28",
     "@nestjs/core": "^11.1.28",
@@ -85,7 +88,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1"
+      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/src/$1"
     }
   }
 }

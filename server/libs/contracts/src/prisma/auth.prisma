@@ -1,14 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider            = "prisma-client"
-  output              = "../libs/contracts/src/prisma/generate"
+  output              = "./generate/auth-generate"
   moduleFormat        = "cjs"
   importFileExtension = ""
-  previewFeatures     = ["partialIndexes"]
 }
 
 datasource db {
@@ -29,7 +23,6 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
-  jobs          Job[]
 }
 
 enum Role {
@@ -80,42 +73,4 @@ model Verification {
   updatedAt  DateTime?
 
   @@index([identifier])
-}
-
-enum JobStatus {
-  PENDING
-  ACTIVE
-  COMPLETED
-  FAILED
-}
-
-model Job {
-  id  String @id @default(cuid())
-  key String
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  failStage   Int?
-  totalTime   Int
-  totalStages Int
-
-  status JobStatus @default(PENDING)
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  completedAt DateTime?
-
-  jobOutboxId String?
-  jobOutbox   JobOutbox?
-
-  @@unique([userId, key])
-  @@index([userId, status, updatedAt])
-  @@index([status, updatedAt])
-}
-
-model JobOutbox {
-  id    String @id @default(cuid())
-  jobId String @unique
-  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }

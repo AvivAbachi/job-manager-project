@@ -1,4 +1,4 @@
-import { PrismaModule } from '@app/contracts';
+import { JobsPrismaModule } from '@app/contracts/prisma';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { MaintenanceProcessor } from './job-scheduler.processor';
@@ -6,11 +6,11 @@ import { JobSchedulerService } from './job-scheduler.service';
 
 @Module({
   imports: [
-    PrismaModule,
+    JobsPrismaModule,
     BullModule.forRoot({
       connection: {
-        host: process.env.REDIS_HOST ?? 'localhost',
-        port: Number(process.env.REDIS_PORT ?? 6379),
+        host: process.env.REDIS_BULLMQ_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_BULLMQ_PORT ?? 6379),
       },
     }),
     BullModule.registerQueue({

@@ -1,0 +1,48 @@
+generator client2 {
+  provider            = "prisma-client"
+  output              = "./generate/jobs-generate"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+  previewFeatures     = ["partialIndexes"]
+}
+
+datasource db2 {
+  provider = "postgresql"
+}
+
+enum JobStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id  String @id @default(cuid())
+  key String
+
+  userId String
+
+  failStage   Int?
+  totalTime   Int
+  totalStages Int
+
+  status JobStatus @default(PENDING)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  outboxId  String?
+  jobOutbox JobOutbox?
+
+  @@unique([userId, key])
+  @@index([userId, status, updatedAt])
+  @@index([status, updatedAt])
+}
+
+model JobOutbox {
+  id    String @id @default(cuid())
+  jobId String @unique
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}

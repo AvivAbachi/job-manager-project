@@ -1,5 +1,5 @@
-import { PrismaService } from '@app/contracts';
-import { JobStatus } from '@app/contracts/prisma/generate/enums';
+import { JobsPrismaService } from '@app/contracts/prisma';
+import { JobStatus } from '@app/contracts/prisma/generate/jobs-generate/enums';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 
@@ -11,7 +11,7 @@ interface JobStatusUpdate {
 
 @Processor('job-status', { concurrency: 100 })
 export class JobStatusProcessor extends WorkerHost {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly prisma: JobsPrismaService) {
     super();
   }
 

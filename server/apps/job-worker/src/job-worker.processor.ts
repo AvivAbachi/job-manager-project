@@ -1,4 +1,4 @@
-import { JobStatus } from '@app/contracts/prisma/generate/enums';
+import { JobStatus } from '@app/contracts/prisma/generate/jobs-generate/enums';
 import type { JobDetails } from '@app/contracts/types/job';
 import {
   InjectQueue,

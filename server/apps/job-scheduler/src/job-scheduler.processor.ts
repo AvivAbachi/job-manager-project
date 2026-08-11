@@ -1,4 +1,4 @@
-import { PrismaService } from '@app/contracts';
+import { JobsPrismaService } from '@app/contracts/prisma';
 import { JobDetails } from '@app/contracts/types/job';
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job, Queue } from 'bullmq';
@@ -9,7 +9,7 @@ const OUTBOX_BATCH_SIZE = 100;
 export class MaintenanceProcessor extends WorkerHost {
   constructor(
     @InjectQueue('job') private readonly jobQueue: Queue<JobDetails>,
-    private readonly prisma: PrismaService,
+    private readonly prisma: JobsPrismaService,
   ) {
     super();
   }

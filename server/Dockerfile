@@ -17,9 +17,9 @@ ARG APP
 COPY nest-cli.json tsconfig.json tsconfig.build.json ./
 COPY apps ./apps
 COPY libs ./libs
-COPY prisma ./prisma
 
-RUN pnpm exec prisma generate
+RUN pnpm exec prisma generate --schema libs/contracts/prisma/auth.prisma \
+  && pnpm exec prisma generate --schema libs/contracts/prisma/jobs.prisma
 
 RUN test -n "$APP" && pnpm exec nest build "$APP"
 

@@ -1,5 +1,5 @@
-import { PrismaService } from '@app/contracts';
-import { JobStatus } from '@app/contracts/prisma/generate/enums';
+import { JobsPrismaService } from '@app/contracts/prisma';
+import { JobStatus } from '@app/contracts/prisma/generate/jobs-generate/enums';
 import type {
   CreateJobPayload,
   JobDetails,
@@ -17,7 +17,7 @@ export class JobService {
   private readonly logger = new Logger(JobService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: JobsPrismaService,
     @InjectQueue('job') private readonly jobQueue: Queue<JobDetails>,
   ) {}
 

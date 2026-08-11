@@ -1,4 +1,4 @@
-import type { JobStatus } from '../prisma/generate/enums';
+import { JobStatus } from '../prisma/generate/jobs-generate/enums';
 
 export interface JobDetails {
   failStage: number | null;

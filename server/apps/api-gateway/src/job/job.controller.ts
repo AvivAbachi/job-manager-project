@@ -1,5 +1,5 @@
-import { JobStatus } from '@app/contracts/prisma/generate/enums';
-import { SortOrder } from '@app/contracts/prisma/generate/internal/prismaNamespace';
+import { JobStatus } from '@app/contracts/prisma/generate/jobs-generate/enums';
+import { SortOrder } from '@app/contracts/prisma/generate/jobs-generate/internal/prismaNamespace';
 import type { JobDetails, JobSortBy } from '@app/contracts/types/job';
 import {
   BadRequestException,
