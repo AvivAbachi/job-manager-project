@@ -36,21 +36,6 @@ Job Manager lets users create and follow asynchronous jobs from a browser. The b
 
 To stop the stack, press `Ctrl+C`, then run `docker compose down`. Add `-v` only when you intentionally want to remove the local database volumes.
 
-## Architecture
-
-```text
-Browser → Client → API Gateway → Auth service / Job service
-                                  │                 │
-                                  │           PostgreSQL + outbox
-                                  │                 │
-                                  └──── Redis ◄ Scheduler → BullMQ → Worker
-```
-
-- The API gateway exposes the authenticated HTTP API and proxies Better Auth routes.
-- The job service stores jobs and outbox records in the jobs database.
-- The scheduler publishes pending outbox entries to BullMQ.
-- The worker performs jobs, reports progress, and updates job status.
-
 ## Repository layout
 
 ```text
